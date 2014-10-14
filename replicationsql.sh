@@ -20,6 +20,7 @@ MYSQL_REPL_PASSWD="mot_de_passe"
 PSSH=22
 # Bases à synchroniser
 dbl="base1 base2"
+#Au préalable activer serverid et logs dans my.cnf et créer une base sur le serveur esclave
  
 echo "+++$(date) Debut $0"
  
@@ -77,7 +78,7 @@ echo "Offset courant sur $MYSQL_RHOST : $MYSQL_OFFSET"
 for db in $dbl
 do
 	echo "$(date) Dump base $db en cours..."
-	mysqldump --host $MYSQL_RHOST --user $MYSQL_RUSER --password=$MYSQL_RPASSWD $db | mysql --user $MYSQL_LUSER --password=$MYSQL_LPASSWD $db
+	mysqldump --host $MYSQL_RHOST -u $MYSQL_RUSER -p$MYSQL_RPASSWD $db | mysql -u $MYSQL_LUSER -p$MYSQL_LPASSWD $db
 	if [ $? -gt 0 ]; then
 		echo "$(date) Erreur Dump base $db sur $MYSQL_RHOST"
 	else
