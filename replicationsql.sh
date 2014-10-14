@@ -1,8 +1,8 @@
 #!/bin/bash
 # --------------------------------------
-# Template initialisation de la réplication MySQL
+# initialisation de la réplication MySQL
 # A exécuter sur le serveur esclave
-# François Grange 2012
+# Abdel
 # --------------------------------------
 # Inits
 # User MySQL esclave avec droits root
