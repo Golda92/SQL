@@ -20,7 +20,7 @@ MYSQL_REPL_PASSWD="mot_de_passe"
 PSSH=22
 # Bases à synchroniser
 dbl="base1 base2"
-#Au préalable activer serverid et logs dans my.cnf et créer une base sur le serveur esclave
+#Au préalable activer serverid et logs dans my.cnf et créer une base si inexistante sur le serveur esclave
  
 echo "+++$(date) Debut $0"
  
@@ -60,6 +60,8 @@ req=`mysql --host $MYSQL_RHOST -u $MYSQL_RUSER -p$MYSQL_RPASSWD -e "$sql"`
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Impossible de verrouiller les tables du serveur maitre. Abandon du traitement"
 	exit 1
+else
+	echo -e "$(date) Tables du serveur maitre verrouillé"
 fi
  
 # Récupération de l'état du maitre
@@ -68,6 +70,8 @@ req=($(mysql --host $MYSQL_RHOST -u $MYSQL_RUSER -p$MYSQL_RPASSWD -e "$sql" -B -
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Echec de récupération de l'état du serveur maitre. Abandon du traitement"
 	exit 1
+else 
+	echo -e "$(date) Etat du serveur maitre récupéré"
 fi
 MYSQL_LOGFILE=${req[0]}
 MYSQL_OFFSET=${req[1]}
@@ -91,6 +95,8 @@ sql="UNLOCK TABLES;"
 req=`mysql --host $MYSQL_RHOST -u $MYSQL_RUSER -p$MYSQL_RPASSWD -e "$sql"`
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Impossible de déverrouiller les tables du serveur maitre."
+else
+	echo "$(date) Devérrouillage des tables maitres OK"
 fi
  
 # Arret des threads esclaves
@@ -99,6 +105,8 @@ req=`mysql -u $MYSQL_LUSER -p$MYSQL_LPASSWD -e "$sql"`
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Impossible de mettre fin à l'esclavage :-("
 	exit 1
+else
+	echo "$(date) thread slave arreté"
 fi
  
 # Application des paramètres de réplication sur l'esclave
@@ -113,6 +121,8 @@ echo $req
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Impossible d'appliquer les paramètres de réplication."
 	exit 1
+else 
+	echo "$(date) paramètres de réplication appliquée"
 fi
  
 # Démarrage de la réplication
@@ -120,4 +130,6 @@ sql="START SLAVE;"
 req=`mysql -u $MYSQL_LUSER -p$MYSQL_LPASSWD -e "$sql"`
 if [ $? -ne 0 ]; then
 	echo -e "(E) $(date) Impossible de démarrer la réplication."
+else
+	echo -e "$(date) replication réussie"
 fi
